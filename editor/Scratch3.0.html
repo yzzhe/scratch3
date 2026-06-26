@@ -126,11 +126,17 @@ document.cookie = "scratchlanguage=zh-cn";//FILE://状态下，此设置无效�
 
                 // 1. 加载项目逻辑
                 if (msg.type === 'scratch_load') {
-                    var fileUrl = msg.fileUrl;
                     try {
-                        var response = await fetch(fileUrl);
-                        if (!response.ok) throw new Error('网络请求错误 ' + response.status);
-                        var arrayBuffer = await response.arrayBuffer();
+                        var arrayBuffer;
+                        if (msg.projectData) {
+                            arrayBuffer = msg.projectData;
+                        } else if (msg.fileUrl) {
+                            var response = await fetch(msg.fileUrl);
+                            if (!response.ok) throw new Error('网络请求错误 ' + response.status);
+                            arrayBuffer = await response.arrayBuffer();
+                        } else {
+                            throw new Error('未提供项目数据或 URL');
+                        }
 
                         // 循环轮询直至 VM 初始化完成
                         var checkCount = 0;
