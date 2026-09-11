@@ -59,9 +59,6 @@ document.cookie = "scratchlanguage=zh-cn";//FILE://状态下，此设置无效�
         <noscript>
             <p>IE内核浏览器已经不能支持本程序需要的HTML5了，请使用Chrome内核的浏览器。</p>
         </noscript>
-正在加载，请稍候。<p>
-等程序加载完毕后，若将Scratch项目文件拖曳到本窗口，可直接打开该文件。
-
         <div id="container" style="position:absolute;visibility:hidden;z-index:99999;"><div class=box>您可通过拖曳Scratch项目文件到此处来实现文件的打开操作。</div></div>
         <div id="app"></div>
 
@@ -138,7 +135,7 @@ document.cookie = "scratchlanguage=zh-cn";//FILE://状态下，此设置无效�
                             throw new Error('未提供项目数据或 URL');
                         }
 
-                        // 循环轮询直至 VM 初始化完成
+                        // 循环轮询直至 VM 初始化完成 (上限提升至 90 秒，保障弱算力首次编译不误报超时)
                         var checkCount = 0;
                         var checkTimer = setInterval(function () {
                             var vm = (oGUI && oGUI.props && oGUI.props.vm) || oVM;
@@ -153,9 +150,9 @@ document.cookie = "scratchlanguage=zh-cn";//FILE://状态下，此设置无效�
                                     });
                             }
                             checkCount++;
-                            if (checkCount > 100) { // 延长等待至20秒
+                            if (checkCount > 450) { // 延长等待至 90 秒
                                 clearInterval(checkTimer);
-                                window.parent.postMessage({ type: 'scratch_error', message: '等待 Scratch 虚拟机初始化超时' }, '*');
+                                window.parent.postMessage({ type: 'scratch_error', message: '等待 Scratch 虚拟机初始化超时，请稍后重试' }, '*');
                             }
                         }, 200);
                     } catch (err) {
@@ -182,6 +179,20 @@ document.cookie = "scratchlanguage=zh-cn";//FILE://状态下，此设置无效�
                     }
                 }
             });
+
+            // 3. 静默预热主动握手检测：一旦 VM 就绪，立即向宿主窗口通知 scratch_vm_ready
+            (function checkReadyLoop() {
+                var count = 0;
+                var timer = setInterval(function () {
+                    var vm = (oGUI && oGUI.props && oGUI.props.vm) || oVM;
+                    if (vm) {
+                        clearInterval(timer);
+                        window.parent.postMessage({ type: 'scratch_vm_ready' }, '*');
+                    }
+                    count++;
+                    if (count > 500) clearInterval(timer);
+                }, 200);
+            })();
         </script>
     </body>
 </html>
