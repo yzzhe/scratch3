@@ -1,198 +1,175 @@
-<html>
-<!--[if lt IE 9 ]> <html class="ie8"> <![endif]-->
-<!--[if IE 9 ]> <html class="ie9"> <![endif]-->
-<!--[if (gt IE 9)|!(IE)]><!--> <html> <!--<![endif]-->
-    <head>
-        <meta charset="UTF-8" />
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="google" value="notranslate" />
+  <link rel="shortcut icon" href="./static/favicon.ico" />
+  <link rel="stylesheet" href="./css/scratch.css" />
+  <title>在线图形化编程</title>
+  
+  <style>
+    /* 彻底隐藏底部书包栏与多余按钮，确保纯净做题体验 */
+    [class*="backpack_backpack-container"],
+    .backpack_backpack-container_2YvyL,
+    [class*="menu-bar_custom-button"],
+    [class*="menu-bar_mystuff-container"],
+    [class*="menu-bar_user-avatar-container"],
+    [class*="menu-bar_account-info-group"] {
+      display: none !important;
+    }
+  </style>
 
-        <meta http-equiv="x-ua-compatible" content="ie=edge">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script>
+    document.cookie = "scratchlanguage=zh-cn";
 
-        <!-- Prevent mobile Safari from making phone numbers -->
-        <meta name="format-detection" content="telephone=no">
-
-        
-
-        <!-- Favicon & CSS normalize -->
-        <link rel="stylesheet" href="./css/lib/normalize.min.css" />
-
-        <!-- Polyfills -->
-        <script src="./js/polyfill.min.js"></script>
-<script>
-var oScratch=null;//="test";
-var strScratchFile=null;
-var oVM=null;
-var oGUI=null;
-
-document.cookie = "scratchlanguage=zh-cn";//FILE://状态下，此设置无效，语言还得手动调。
-</script>
-
-<style>
-  #container {
-    visibility:hidden;
-    border: 1px solid #aaa;
-    position: absolute;
-    left: 0px;
-    top: 0px;
-    width:99%;
-    height:99%;
-    z-index: 9999;
-  }
-  .box
-  {
-    font-size:80px;
-    color:red;
-    line-height: 100px;
-    text-align: center;
-    position: absolute;
-    top: 50%;
-    margin-top: -50px;
-    display: -moz-box;
-    -moz-box-pack: center;
-    -moz-box-align: center;
-    width: 100%;
-}
-</style>
-    </head>
-
-    <body>
-        <noscript>
-            <p>IE内核浏览器已经不能支持本程序需要的HTML5了，请使用Chrome内核的浏览器。</p>
-        </noscript>
-        <div id="container" style="position:absolute;visibility:hidden;z-index:99999;"><div class=box>您可通过拖曳Scratch项目文件到此处来实现文件的打开操作。</div></div>
-        <div id="app"></div>
-
-
-<script>
-    /*拖拽的目标对象------ document 监听drop 并防止浏览器打开客户端的图片*/
-    document.ondragover = function (e) {
-        e.preventDefault();  //只有在ondragover中阻止默认行为才能触发 ondrop 而不是 ondragleave
-        document.getElementById("container").style.visibility="visible";
-    };
-
-    document.ondrop = function (e) {
-        e.preventDefault();  //阻止 document.ondrop的默认行为  *** 在新窗口中打开拖进的图片
-        document.getElementById("container").style.visibility="hidden";
-
-    };
-    /*拖拽的源对象----- 客户端的一张图片 */
-    /*拖拽目标对象-----div#container  若图片释放在此元素上方，则需要在其中显示*/
-    container.ondragover = function (e) {
-        e.preventDefault();
-        document.getElementById("container").style.visibility="hidden";
-    };
-
-    container.ondragleave = function (e) {
-        e.preventDefault();
-        document.getElementById("container").style.visibility="hidden";
-    };
-
-    container.ondrop = function (e) {
-        var list = e.dataTransfer.files;
-        for (var i = 0; i < list.length; i++) {
-            var f = list[i];
-            reader(f);
+    window.scratchConfig = {
+      session: {
+        token: "",
+        username: "同学"
+      },
+      // 1. 彻底禁用底部书包
+      backpack: {
+        enable: false,
+        api: ""
+      },
+      // 2. 云变量
+      cloudData: {
+        enable: false
+      },
+      projectInfo: {
+        projectName: "Scratch作答项目",
+        authorUsername: "同学"
+      },
+      logo: {
+        show: true
+      },
+      stageArea: {
+        fullscreenButton: { show: true },
+        startButton: { show: true },
+        stopButton: { show: true }
+      },
+      menuBar: {
+        style: {
+          background: 'hsla(215, 100%, 65%, 1)'
+        },
+        languageButton: {
+          show: false,
+          defaultLanguage: 'zh-cn'
+        },
+        newButton: { show: true },
+        loadFileButton: { show: true },
+        saveFileButton: { show: true },
+        turboModeButton: { show: true },
+        helpButton: { show: false },
+        // 3. 彻底禁用右上角多余物品与名库头像
+        myStuff: { show: false },
+        userAvatar: { show: false },
+        // 4. 彻底清空顶部自定义提交/保存按钮
+        customButtons: []
+      },
+      blocks: {
+        scale: 0.8
+      },
+      // 5. 关联完整本地素材库 (330+角色、造型、背景、声音)，100% 本地高速直读，零外网依赖
+      assets: {
+        assetHost: './static',
+        defaultIndex: {
+          sprites: "./static/json_index/sprites.json",
+          costumes: "./static/json_index/costumes.json",
+          backdrops: "./static/json_index/backdrops.json",
+          sounds: "./static/json_index/sounds.json"
         }
+      },
+      defaultProjectURL: "./static/project.sb3",
+      handleVmInitialized: function (vm) {
+        window.vm = vm;
+        window.parent.postMessage({ type: 'scratch_vm_ready' }, '*');
+      }
     };
 
-    function reader(f) {
-        var reader = new FileReader();
-        reader.readAsArrayBuffer(f);//readAsDataURL(f);
-        reader.onload = function () {
-           oGUI.props.vm.loadProject(reader.result);
-           document.getElementById("container").style.visibility="hidden";
+    // 6. 监听与父答题系统的 postMessage 双向通信
+    window.addEventListener('message', async function (event) {
+      var msg = event.data;
+      if (!msg || typeof msg !== 'object') return;
+
+      // 加载题目工程文件
+      if (msg.type === 'scratch_load') {
+        try {
+          var arrayBuffer;
+          if (msg.projectData) {
+            arrayBuffer = msg.projectData;
+          } else if (msg.fileUrl) {
+            var response = await fetch(msg.fileUrl);
+            if (!response.ok) throw new Error('网络请求错误 ' + response.status);
+            arrayBuffer = await response.arrayBuffer();
+          } else {
+            throw new Error('未提供项目数据');
+          }
+
+          var checkTimer = setInterval(function () {
+            var vm = (window.scratch && window.scratch.vm) || window.vm;
+            if (vm) {
+              clearInterval(checkTimer);
+              vm.loadProject(arrayBuffer)
+                .then(function () {
+                  window.parent.postMessage({ type: 'scratch_load_success' }, '*');
+                })
+                .catch(function (err) {
+                  window.parent.postMessage({ type: 'scratch_error', message: '加载项目失败: ' + err.message }, '*');
+                });
+            }
+          }, 100);
+        } catch (err) {
+          window.parent.postMessage({ type: 'scratch_error', message: '下载作品项目失败: ' + err.message }, '*');
         }
-    } 
+      }
 
-</script>
-
-        <!-- Vendor & Initialize (Session & Localization)-->
-        <script src="./js/common.bundle.js"></script>
-
-        <!-- Scripts -->
-        <script src="./js/projects.intl.js"></script>
-        <script src="./js/projects.bundle.js"></script>
-
-        <!-- Translate title element -->
-        
-        <script>
-            // 跨域 postMessage 通信协议支持
-            window.addEventListener('message', async function (event) {
-                var msg = event.data;
-                if (!msg || typeof msg !== 'object') return;
-
-                // 1. 加载项目逻辑
-                if (msg.type === 'scratch_load') {
-                    try {
-                        var arrayBuffer;
-                        if (msg.projectData) {
-                            arrayBuffer = msg.projectData;
-                        } else if (msg.fileUrl) {
-                            var response = await fetch(msg.fileUrl);
-                            if (!response.ok) throw new Error('网络请求错误 ' + response.status);
-                            arrayBuffer = await response.arrayBuffer();
-                        } else {
-                            throw new Error('未提供项目数据或 URL');
-                        }
-
-                        // 循环轮询直至 VM 初始化完成 (上限提升至 90 秒，保障弱算力首次编译不误报超时)
-                        var checkCount = 0;
-                        var checkTimer = setInterval(function () {
-                            var vm = (oGUI && oGUI.props && oGUI.props.vm) || oVM;
-                            if (vm) {
-                                clearInterval(checkTimer);
-                                vm.loadProject(arrayBuffer)
-                                    .then(function () {
-                                        window.parent.postMessage({ type: 'scratch_load_success' }, '*');
-                                    })
-                                    .catch(function (err) {
-                                        window.parent.postMessage({ type: 'scratch_error', message: '加载项目失败: ' + err.message }, '*');
-                                    });
-                            }
-                            checkCount++;
-                            if (checkCount > 450) { // 延长等待至 90 秒
-                                clearInterval(checkTimer);
-                                window.parent.postMessage({ type: 'scratch_error', message: '等待 Scratch 虚拟机初始化超时，请稍后重试' }, '*');
-                            }
-                        }, 200);
-                    } catch (err) {
-                        window.parent.postMessage({ type: 'scratch_error', message: '下载作品项目失败: ' + err.message }, '*');
-                    }
-                }
-
-                // 2. 保存项目逻辑
-                if (msg.type === 'scratch_save') {
-                    var qId = msg.qId;
-                    var vm = (oGUI && oGUI.props && oGUI.props.vm) || oVM;
-                    if (!vm) {
-                        window.parent.postMessage({ type: 'scratch_error', message: 'Scratch 虚拟机尚未初始化完成，请稍候再试' }, '*');
-                        return;
-                    }
-                    try {
-                        vm.saveProjectSb3().then(function (blob) {
-                            window.parent.postMessage({ type: 'scratch_saved', qId: qId, blob: blob }, '*');
-                        }).catch(function (err) {
-                            window.parent.postMessage({ type: 'scratch_error', message: '生成 sb3 数据失败: ' + err.message }, '*');
-                        });
-                    } catch (err) {
-                        window.parent.postMessage({ type: 'scratch_error', message: '保存动作执行失败: ' + err.message }, '*');
-                    }
-                }
+      // 保存学生作品为 .sb3
+      if (msg.type === 'scratch_save') {
+        var qId = msg.qId;
+        var vm = (window.scratch && window.scratch.vm) || window.vm;
+        if (!vm) {
+          window.parent.postMessage({ type: 'scratch_error', message: 'Scratch 虚拟机尚未初始化完成' }, '*');
+          return;
+        }
+        try {
+          vm.saveProjectSb3()
+            .then(function (blob) {
+              window.parent.postMessage({ type: 'scratch_saved', qId: qId, blob: blob }, '*');
+            })
+            .catch(function (err) {
+              window.parent.postMessage({ type: 'scratch_error', message: '生成 sb3 数据失败: ' + err.message }, '*');
             });
+        } catch (err) {
+          window.parent.postMessage({ type: 'scratch_error', message: '保存动作执行失败: ' + err.message }, '*');
+        }
+      }
+    });
 
-            // 3. 静默预热主动握手检测：一旦 VM 就绪，立即向宿主窗口通知 scratch_vm_ready
-            (function checkReadyLoop() {
-                var count = 0;
-                var timer = setInterval(function () {
-                    var vm = (oGUI && oGUI.props && oGUI.props.vm) || oVM;
-                    if (vm) {
-                        clearInterval(timer);
-                        window.parent.postMessage({ type: 'scratch_vm_ready' }, '*');
-                    }
-                    count++;
-                    if (count > 500) clearInterval(timer);
-                }, 200);
-            })();
-        </script>
-    </body>
+    // 持续检测主动握手通知
+    var checkReadyTimer = setInterval(function () {
+      var vm = (window.scratch && window.scratch.vm) || window.vm;
+      if (vm) {
+        clearInterval(checkReadyTimer);
+        window.parent.postMessage({ type: 'scratch_vm_ready' }, '*');
+      }
+    }, 150);
+  </script>
+</head>
+
+<body>
+  <div id="scratch">
+    <div style="display:flex;align-items:center;justify-content:center;height:100vh;color:#4F46E5;font-family:sans-serif;">
+      <div style="text-align:center;">
+        <div style="font-size:32px;margin-bottom:12px;">🐱</div>
+        <div style="font-size:14px;font-weight:bold;">正在加载 Scratch 在线编程环境...</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 轻量化精简核心库 -->
+  <script src="./js/lib.min.js"></script>
+  <script src="./chunks/gui.js"></script>
+</body>
 </html>
